@@ -1,6 +1,6 @@
 import { ResponseType, WalletType } from "@/types";
 import { uploadFileCloudinary } from "./imageServices";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { firestore } from "@/config/firebase";
 
 export const createOrUpdateBasket = async (
@@ -44,5 +44,16 @@ export const createOrUpdateBasket = async (
   } catch (error: any) {
     console.log("Error creating or updating wallet: ", error);
     return { success: false, msg: error.message };
+  }
+};
+export const deleteBasket = async (basketId: string): Promise<ResponseType> => {
+  try {
+    const basketRef = doc(firestore, "wallets", basketId);
+    await deleteDoc(basketRef);
+    // todo: delete all transactions related to this wallet
+    return { success: true, msg: "Wallet deleted successfully" };
+  } catch (err: any) {
+    console.log("error deleting wallet: ", err);
+    return { success: false, msg: err.message };
   }
 };

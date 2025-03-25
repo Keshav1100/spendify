@@ -18,13 +18,24 @@ const WalletListItem = ({
   index: number;
   router: Router;
 }) => {
+  const openBasket = () => {
+    router.push({
+      pathname: "/(modals)/basketsModal",
+      params: {
+        id: item?.id,
+        name: item?.name,
+        amount: item?.amount,
+        image: item?.image,
+      },
+    });
+  };
   return (
     <Animated.View
       entering={FadeInDown.delay(index * 100)
         .springify()
         .damping(13)}
     >
-      <TouchableOpacity style={styles.container}>
+      <TouchableOpacity style={styles.container} onPress={openBasket}>
         <View style={styles.imageContainer}>
           <Image
             source={item?.image}

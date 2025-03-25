@@ -1,33 +1,20 @@
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { scale, verticalScale } from "@/utils/styling";
-import ScreenWrapper from "@/components/ScreenWrapper";
 import ModalWrapper from "@/components/ModalWrapper";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
 // import { ScrollView } from "react-native-reanimated";
-import { getProfileImage } from "@/services/imageServices";
-import { Image } from "expo-image";
-import * as Icons from "phosphor-react-native";
 import Typo from "@/components/Typo";
 import Input from "@/components/Input";
 import { UserDataType, WalletType } from "@/types";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import Button from "@/components/Button";
 import { useAuth } from "@/contexts/authContext";
-import { updateUser } from "@/services/userServices";
-import { useRouter } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import ImageUpload from "@/components/ImageUpload";
-import { createOrUpdateBasket } from "@/services/basketServices";
+import { createOrUpdateBasket, deleteBasket } from "@/services/basketServices";
+import * as Icons from "phosphor-react-native";
 const basketsModal = () => {
   const { user, updateUserData } = useAuth();
   const [basket, setBasket] = useState<WalletType>({
@@ -36,8 +23,18 @@ const basketsModal = () => {
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const oldBasket: { name: string; image: string; id: string } =
+    useLocalSearchParams();
+  useEffect(() => {
+    if (oldBasket?.id) {
+      setBasket({
+        name: oldBasket.name,
+        image: oldBasket.image,
+      });
+    }
+  }, []);
 
- 
+  // console.log("oldBasket: ", oldBasket);
   const onSubmit = async () => {
     let { name, image } = basket;
     if (!name.trim() || !image) {
@@ -49,6 +46,7 @@ const basketsModal = () => {
       image,
       uid: user?.uid,
     };
+    if (oldBasket?.id) data.id = oldBasket.id;
     setLoading(true);
     // console.log("on submit: userData::::", basket);
     const res = await createOrUpdateBasket(data);
@@ -62,11 +60,42 @@ const basketsModal = () => {
       Alert.alert("Basket", res.msg);
     }
   };
+
+  const onDelete = async () => {
+    if (!oldBasket?.id) return;
+    setLoading(true);
+    const res = await deleteBasket(oldBasket?.id);
+    setLoading(false);
+    if (res.success) {
+      router.back();
+    } else {
+      Alert.alert("Wallet", res.msg);
+    }
+  };
+  const showDeleteAlert = () => {
+    Alert.alert(
+      "Confirm",
+      "Are you sure you want to do this? \nThis action will remove all the transactions related to this wallet.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("cancel delete"),
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => onDelete(),
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
   return (
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="New Basket"
+          title={oldBasket?.id ? "Update Basket" : "New Basket"}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -91,9 +120,25 @@ const basketsModal = () => {
         </ScrollView>
       </View>
       <View style={styles.footer}>
+        {oldBasket.id && !loading && (
+          <Button
+            onPress={showDeleteAlert}
+            style={{
+              backgroundColor: colors.rose,
+              paddingHorizontal: spacingX._15,
+            }}
+          >
+            <Icons.Trash
+              color={colors.white}
+              size={verticalScale(24)}
+              weight="bold"
+            />
+          </Button>
+        )}
+
         <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            Add Basket
+            {oldBasket?.id ? "Update Basket" : "Add Basket"}
           </Typo>
         </Button>
       </View>
