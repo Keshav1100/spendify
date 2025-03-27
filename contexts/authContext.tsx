@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           name: firebaseUser?.displayName,
         });
         updateUserData(firebaseUser?.uid);
-        router.replace("/(tabs)/profile");
+        router.replace("/(tabs)/");
       } else {
         setUser(null);
         router.replace("/(auth)/welcome");

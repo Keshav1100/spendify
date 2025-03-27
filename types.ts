@@ -77,7 +77,7 @@ export type TransactionType = {
   description?: string;
   image?: any;
   uid?: string;
-  walletId: string;
+  basketId: string;
 };
 
 export type CategoryType = {
