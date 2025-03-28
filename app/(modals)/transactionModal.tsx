@@ -28,8 +28,11 @@ import { expenseCategories, transactionTypes } from "@/constants/data";
 import useFetchData from "@/hooks/useFetchData";
 import { orderBy, where } from "firebase/firestore";
 // import DateTimePicker from "@react-native-community/datetimepicker";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  AndroidNativeProps,
+} from "@react-native-community/datetimepicker";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 
 const TransactionsModal = () => {
   const { user, updateUserData } = useAuth();
@@ -68,29 +71,23 @@ const TransactionsModal = () => {
 
   // console.log("oldTransaction: ", oldTransaction);
   const onSubmit = async () => {
-    // let { , image } = transaction;
-    // if (!name.trim() || !image) {
-    //   Alert.alert("Transaction", "Please fill all the fields");
-    //   return;
-    // }
-    // const data: WalletType = {
-    //   name,
-    //   image,
-    //   uid: user?.uid,
-    // };
-    // if (oldTransaction?.id) data.id = oldTransaction.id;
-    // setLoading(true);
-    // // console.log("on submit: userData::::", Transaction);
-    // const res = await createOrUpdateTransaction(data);
-    // setLoading(false);
-    // console.log("res for Transaction creation: ", res);
-    // if (res.success) {
-    //   // update user
-    //   // updateUserData(user?.uid as string);
-    //   router.back();
-    // } else {
-    //   Alert.alert("Transaction", res.msg);
-    // }
+    let { amount, basketId, category, date, description, image, type } =
+      transaction;
+    if (!amount || !basketId || (type == "expense" && !category) || !date) {
+      Alert.alert("Transaction", "Please fill all the fields");
+      return;
+    }
+    const transactionData: TransactionType = {
+      amount,
+      basketId,
+      category,
+      date,
+      description,
+      image,
+      type,
+      uid: user?.uid,
+    };
+    console.log("transactionData", transactionData);
   };
 
   const onDelete = async () => {
@@ -237,16 +234,40 @@ const TransactionsModal = () => {
                 </Typo>
               </Pressable>
             )}
-            {showDatePicker && (
+            {/* {showDatePicker && (
               <View style={Platform.OS == "ios" && styles.iosDatePicker}>
-                <DateTimePicker
-                  themeVariant="dark"
-                  value={transaction.date as Date}
-                  textColor={colors.white}
-                  mode="date"
-                  display={Platform.OS == "ios" ? "spinner" : "default"}
-                  onChange={onDateChange}
-                />
+                <Pressable
+                  onPress={() => {
+                    DateTimePickerAndroid.open({
+                      value: new Date(transaction.date as Date),
+                      mode: "date",
+                      display: "default",
+                      onChange: (event, selectedDate) => {
+                        console.log("event", event);
+                        console.log("selectedDate", selectedDate);
+                        if (selectedDate) {
+                          setTransaction({
+                            ...transaction,
+                            date: selectedDate,
+                          });
+                        }
+                      },
+                    } );
+                    // if (showDatePicker) {
+                    //   return (
+                    //     <DateTimePicker
+                    //       value={new Date(transaction.date as Date)}
+                    //       mode="date"
+                    //       onChange={onDateChange}
+                    //     />
+                    //   );
+                    // }
+                  }}
+                >
+                  <Typo size={14}>
+                    {(transaction.date as Date).toLocaleDateString()}
+                  </Typo>
+                </Pressable>
                 {Platform.OS == "ios" && (
                   <TouchableOpacity
                     style={styles.datePickerButton}
@@ -258,11 +279,61 @@ const TransactionsModal = () => {
                   </TouchableOpacity>
                 )}
               </View>
-            )}
+            )} */}
           </View>
 
+          {/* Amount */}
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200}>Transaction Icon</Typo>
+            <Typo color={colors.neutral200}>Amount</Typo>
+            <Input
+              // placeholder="Salary"
+              keyboardType="numeric"
+              value={transaction.amount?.toString()}
+              onChangeText={(value) =>
+                setTransaction({
+                  ...transaction,
+                  amount: Number(value.replace(/[^0-9]/g, "")),
+                })
+              }
+            />
+          </View>
+          {/* Description */}
+          <View style={styles.inputContainer}>
+            <View style={styles.flexRow}>
+              <Typo size={16} color={colors.neutral200}>
+                Description
+              </Typo>
+              <Typo size={14} color={colors.neutral500}>
+                (Optional)
+              </Typo>
+            </View>
+            <Input
+              // placeholder="Salary"
+              multiline
+              containerStyle={{
+                height: verticalScale(100),
+                flexDirection: "row",
+                alignItems: "flex-start",
+                paddingVertical: 15,
+              }}
+              value={transaction.description}
+              onChangeText={(value) =>
+                setTransaction({
+                  ...transaction,
+                  description: value,
+                })
+              }
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <View style={styles.flexRow}>
+              <Typo size={16} color={colors.neutral200}>
+                Reciept
+              </Typo>
+              <Typo size={14} color={colors.neutral500}>
+                (Optional)
+              </Typo>
+            </View>
             <ImageUpload
               //   file={Transaction.image}
               onClear={() => setTransaction({ ...transaction, image: null })}
@@ -293,7 +364,7 @@ const TransactionsModal = () => {
 
         <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            {oldTransaction?.id ? "Update Transaction" : "Add Transaction"}
+            {oldTransaction?.id ? "Update Transaction" : "Submit"}
           </Typo>
         </Button>
       </View>
