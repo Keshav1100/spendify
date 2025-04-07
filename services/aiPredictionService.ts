@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import {GEMINI_API_KEY} from "@env"
 
 // Configure the Gemini API with your API key
-console.log("Gemini API Key:",GEMINI_API_KEY);
+// console.log("Gemini API Key:",GEMINI_API_KEY);
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || "", // Replace with your actual API key
 });
