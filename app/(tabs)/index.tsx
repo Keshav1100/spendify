@@ -18,9 +18,24 @@ import * as Icons from "phosphor-react-native";
 import HomeCard from "@/components/HomeCard";
 import TransactionList from "@/components/TransactionList";
 import { useRouter } from "expo-router";
+import { limit, orderBy, where } from "firebase/firestore";
+import useFetchData from "@/hooks/useFetchData";
+import { TransactionType, WalletType } from "@/types";
 const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
+
+  const constraints=[
+    where("uid","==",user?.uid),
+    orderBy("date","desc"),
+    limit(30)
+  ];
+  const {
+    data: recentTransactions,
+    error,
+    loading: transactionsLoading,
+  } = useFetchData<TransactionType>("transactions", constraints);
+  console.log("recentTransactions", recentTransactions);
   return (
     <ScreenWrapper>
       <View style={styles.container}>
@@ -34,7 +49,7 @@ const Home = () => {
               {user?.name}
             </Typo>
           </View>
-          <TouchableOpacity style={styles.searchIcon}>
+          <TouchableOpacity onPress={()=> router.push("/(modals)/searchModal")} style={styles.searchIcon}>
             <Icons.MagnifyingGlass
               size={verticalScale(22)}
               color={colors.neutral200}
@@ -51,8 +66,8 @@ const Home = () => {
             <HomeCard />
           </View>
           <TransactionList
-            data={[1, 2, 3, 4, 5, 5]}
-            loading={false}
+            data={recentTransactions}
+            loading={transactionsLoading}
             emptyListMessage="No transaction added yet!"
             title="Recent Transactions"
           />

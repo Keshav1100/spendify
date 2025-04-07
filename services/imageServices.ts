@@ -1,7 +1,16 @@
-import { CLOUDINARY_API_URI, CLOUDINARY_UPLOAD_PRESET } from "@/constants";
+import {  CLOUDINARY_UPLOAD_PRESET,CLOUDINARY_CLOUD_NAME } from "@env";
 import { ResponseType } from "@/types";
 import axios from "axios";
-const cloudinary_url = CLOUDINARY_API_URI;
+// console.log("CLOUDINARY_API_URI",CLOUDINARY_API_URI);
+console.log("CLOUDINARY_UPLOAD_PRESET",CLOUDINARY_UPLOAD_PRESET); 
+console.log("CLOUDINARY_CLOUD_NAME",CLOUDINARY_CLOUD_NAME);
+
+
+
+
+
+const cloudinary_url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`
+;
 export const uploadFileCloudinary = async (
   file: { uri?: string } | string,
   folderName: string

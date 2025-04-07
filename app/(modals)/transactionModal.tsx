@@ -33,6 +33,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import { createOrUpdateTransaction, deleteTransaction } from "@/services/transactionService";
 
 const TransactionsModal = () => {
   const { user, updateUserData } = useAuth();
@@ -45,6 +46,9 @@ const TransactionsModal = () => {
     basketId: "",
     image: null,
   });
+
+
+
   const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const router = useRouter();
@@ -61,13 +65,35 @@ const TransactionsModal = () => {
     where("uid", "==", user?.uid),
     orderBy("created", "desc"),
   ]);
-  const oldTransaction: { name: string; image: string; id: string } =
-    useLocalSearchParams();
+  type paramType = {
+    id: string;
+    type: string;
+    amount: string;
+    category?: string;
+    date: string;
+    description?: string;
+    image?: any;
+    uid?: string;
+    basketId: string;
+  };
+  
+
+  const oldTransaction: paramType =useLocalSearchParams();
   useEffect(() => {
     if (oldTransaction?.id) {
-      setTransaction({ ...transaction, image: oldTransaction.image });
+      setTransaction({
+        type: oldTransaction?.type,
+        amount: Number(oldTransaction.amount),
+        description: oldTransaction.description || "",
+        category: oldTransaction.category || "",
+        date: new Date(oldTransaction.date),
+        basketId: oldTransaction.basketId,
+        image: oldTransaction?.image,
+      });
+      console.log("oldTransaction", oldTransaction);
     }
   }, []);
+  
 
   // console.log("oldTransaction: ", oldTransaction);
   const onSubmit = async () => {
@@ -83,28 +109,42 @@ const TransactionsModal = () => {
       category,
       date,
       description,
-      image,
+      image:image?image:null,
       type,
       uid: user?.uid,
     };
-    console.log("transactionData", transactionData);
+ 
+
+    if(oldTransaction?.id){
+      transactionData.id=oldTransaction.id;
+    }
+
+    setLoading(true);
+    const res=await createOrUpdateTransaction(transactionData);
+
+    setLoading(false);
+    if (res.success) {
+      router.back();
+    }else{
+      Alert.alert("Transaction", res.msg);
+    }
   };
 
   const onDelete = async () => {
     if (!oldTransaction?.id) return;
     setLoading(true);
-    const res = await deleteBasket(oldTransaction?.id);
+    const res = await deleteTransaction(oldTransaction?.id,oldTransaction?.basketId);
     setLoading(false);
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Wallet", res.msg);
+      Alert.alert("Transaction", res.msg);
     }
   };
   const showDeleteAlert = () => {
     Alert.alert(
       "Confirm",
-      "Are you sure you want to do this? \nThis action will remove all the transactions related to this wallet.",
+      "Are you sure you want to delete this transaction?",
       [
         {
           text: "Cancel",
