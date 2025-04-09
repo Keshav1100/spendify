@@ -21,13 +21,51 @@ const Statistics = () => {
   const [chartData, setChartData] = useState([]);
   const [chartLoading, setChartLoading] = useState(false);
   const [transactions, setTransactions] = useState([]);
-const holidays = [
-  { name: "New Year", date: "2025-01-01" },
-  { name: "Valentine's Day", date: "2025-02-14" },
-  { name: "Easter", date: "2025-03-31" },
-  { name: "Independence Day", date: "2025-07-04" },
-  { name: "Halloween", date: "2025-10-31" },
-  { name: "Thanksgiving", date: "2025-11-28" },]
+  const holidays = [
+    { name: "New Year's Day", date: "2025-01-01" },
+    { name: "Lohri", date: "2025-01-13" },
+    { name: "Makar Sankranti / Pongal", date: "2025-01-14" },
+    { name: "Republic Day", date: "2025-01-26" },
+    { name: "Vasant Panchami", date: "2025-02-02" },
+    { name: "Maha Shivaratri", date: "2025-02-26" },
+    { name: "Holi", date: "2025-03-14" },
+    { name: "Chaitra Navratri (Start)", date: "2025-03-30" },
+    { name: "Ram Navami", date: "2025-04-06" },
+    { name: "Good Friday", date: "2025-04-18" },
+    { name: "Mahavir Jayanti", date: "2025-04-10" },
+    { name: "Ambedkar Jayanti", date: "2025-04-14" },
+    { name: "Baisakhi", date: "2025-04-13" },
+    { name: "Eid al-Fitr (Ramzan Eid)", date: "2025-03-30" },
+    { name: "Buddha Purnima", date: "2025-05-12" },
+    { name: "Bakrid (Eid al-Adha)", date: "2025-06-06" },
+    { name: "Rath Yatra", date: "2025-06-28" },
+    { name: "Muharram", date: "2025-07-06" },
+    { name: "Nag Panchami", date: "2025-08-04" },
+    { name: "Raksha Bandhan", date: "2025-08-09" },
+    { name: "Independence Day", date: "2025-08-15" },
+    { name: "Janmashtami", date: "2025-08-16" },
+    { name: "Ganesh Chaturthi (Start)", date: "2025-08-28" },
+    { name: "Ganesh Visarjan (End)", date: "2025-09-06" },
+    { name: "Onam (Thiruvonam)", date: "2025-09-05" },
+    { name: "Pitru Paksha (Start)", date: "2025-09-09" },
+    { name: "Pitru Paksha (End)", date: "2025-09-24" },
+    { name: "Navratri (Start)", date: "2025-09-25" },
+    { name: "Dussehra / Vijayadashami", date: "2025-10-02" },
+    { name: "Durga Puja (Start)", date: "2025-09-30" },
+    { name: "Durga Puja (Dashami)", date: "2025-10-02" },
+    { name: "Gandhi Jayanti", date: "2025-10-02" },
+    { name: "Karva Chauth", date: "2025-10-15" },
+    { name: "Dhanteras", date: "2025-10-18" },
+    { name: "Diwali", date: "2025-10-20" },
+    { name: "Govardhan Puja", date: "2025-10-21" },
+    { name: "Bhai Dooj", date: "2025-10-22" },
+    { name: "Chhath Puja (Start)", date: "2025-10-31" },
+    { name: "Chhath Puja (Main Day)", date: "2025-11-02" },
+    { name: "Guru Nanak Jayanti", date: "2025-11-05" },
+    { name: "Christmas", date: "2025-12-25" }
+  ];
+  
+  
   useEffect(() => {
     if (activeIndex == 0) {
       getWeeklyStats();
