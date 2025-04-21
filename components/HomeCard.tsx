@@ -17,7 +17,7 @@ const HomeCard = () => {
     error,
     loading: basketLoading,
   }=useFetchData<WalletType>("wallets",[
-    // where("uid","==",user?.uid),
+    where("uid","==",user?.uid),
     orderBy("created","desc"),]);
   
     const getTotals=()=>{
